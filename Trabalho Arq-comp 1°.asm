@@ -10,11 +10,14 @@ segment .data
 	mens1 db"Digite uma senha de 6 caracteres intercalando maiuscula de minusculas: ",10
 	tam1 equ $-mens1
 	
-	limpatela db 27,"[H]",27,"[j]"
+	limpatela db 10,10,10,10,10,10
 	limptam equ $-limpatela
 	
 	mens3 db "Tenta advinhar a senha que foi digitada agora!",10
 	tam3 equ $-mens3 
+	
+	mensacerto db" Vocẽ acertou !!!",10
+	tamacerto equ $- mensacerto 
 
 segment .text
 
@@ -31,16 +34,15 @@ _start:
 	mov ecx,mens1 ;ponteiro da string
 	call printstr
 	
-	mov edx,100 ; maximo armazenado
+	mov edx,7 ; maximo armazenado
 	mov ecx,mens2 ; buffer destino
 	call readstr; Em eax retorna o nº de caracteres armazenados
-	
 	cmp eax,7 ;Validando a quantidade de caracteres
 	jne _start ;Se for < que 6 volta pro inicio
 	
 	mov ecx,eax ;limite
 	call valida
-	cmp esi,6
+	cmp esi,7
 	jne _start
 		
 	;limpa a tela
@@ -55,10 +57,15 @@ _start:
 	mov edx,100 ; maximo armazenado
 	mov ecx,mens5 ; buffer destino
 	call readstr;Em eax retorna o nº de caracteres armazenados
+	call comparaduas
+	cmp esi,7
+	jne erro
 	
-	
-	
-	
+finalgeral:
+
+	mov eax,1
+	int 80h
+
 segment .bss
 	
 	;dados nao inicializados
@@ -92,11 +99,13 @@ readstr:
 valida:
 
 	xor esi,esi
+	call init_for
+	ret
 	
 init_for:
 
 	mov al,[mens2+esi] ;car. origem
-	cmp al, 'A'
+	cmp al,'A'
 	jb sair
 	cmp al,'Z'
 	jb sair
@@ -112,9 +121,25 @@ init_for:
 sair:
 	ret
 	
+;Other Procedure
+comparaduas:
 	
+	xor esi,esi
+	mov al,[mens2+esi]
+	mov ah,[mens5+esi]
+	cmp al,ah
+	jne final
+	inc esi
 	
+final:
+	ret
 	
+;Other Procedure
+
+erro:
 	
-	
+	mov edx,mensacerto
+	mov ecx,tamacerto
+	call printstr
+	ret
 	
