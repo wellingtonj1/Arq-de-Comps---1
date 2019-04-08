@@ -26,21 +26,23 @@ global _start
 _start:
 	
 	;limpa a tela
-	mov edx,limptam
-	mov ecx,limpatela
-	call printstr
+	
+	;mov edx,limptam
+	;mov ecx,limpatela
+	;call printstr
 	
 	mov edx,tam1 ;quantidade de caracteres, no caso ele imprime o tamanho armazenado em tamm
 	mov ecx,mens1 ;ponteiro da string
 	call printstr
 	
-	mov edx,7 ; maximo armazenado
+	mov edx,10 ; maximo armazenado
 	mov ecx,mens2 ; buffer destino
 	call readstr; Em eax retorna o nº de caracteres armazenados
 	cmp eax,7 ;Validando a quantidade de caracteres
 	jne _start ;Se for < que 6 volta pro inicio
 	
 	mov ecx,eax ;limite
+	xor esi,esi
 	call valida
 	cmp esi,7
 	jne _start
@@ -59,7 +61,15 @@ _start:
 	call readstr;Em eax retorna o nº de caracteres armazenados
 	call comparaduas
 	cmp esi,7
-	jne erro
+	jne acerto
+	call finalgeral 
+	
+acerto:
+	
+	mov edx,mensacerto
+	mov ecx,tamacerto
+	call printstr
+	ret
 	
 finalgeral:
 
@@ -98,25 +108,20 @@ readstr:
 ;Other Procedure
 valida:
 
-	xor esi,esi
-	call init_for
-	ret
-	
-init_for:
-
-	mov al,[mens2+esi] ;car. origem
-	cmp al,'A'
+	mov al,[mens2+esi] ;car. origem 
+	cmp al,"A" ; A C E
 	jb sair
-	cmp al,'Z'
+	cmp al,"Z"
 	jb sair
-	inc esi
-	cmp al,'a'
+	inc esi 
+	mov ax,[mens2+esi]
+	cmp ax,"a" ; b d f
 	jb sair
-	cmp al,'z'
+	cmp ax,"z"
 	jb sair
 	inc esi
-	cmp esi,6
-	jne init_for
+	cmp esi,7
+	jne valida
 	
 sair:
 	ret
@@ -132,14 +137,8 @@ comparaduas:
 	inc esi
 	
 final:
-	ret
-	
-;Other Procedure
 
-erro:
-	
-	mov edx,mensacerto
-	mov ecx,tamacerto
-	call printstr
 	ret
+	
+	
 	
