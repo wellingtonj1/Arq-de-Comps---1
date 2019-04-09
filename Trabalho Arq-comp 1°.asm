@@ -26,9 +26,9 @@ global _start
 _start:
 	
 	;limpa a tela
-	;mov edx,limptam
-	;mov ecx,limpatela
-	;call printstr
+	mov edx,limptam
+	mov ecx,limpatela
+	call printstr
 	
 	mov edx,tam1 ;quantidade de caracteres, no caso ele imprime o tamanho armazenado em tamm
 	mov ecx,mens1 ;ponteiro da string
@@ -50,9 +50,9 @@ _start:
 tentativasenha:
 
 	;limpa a tela
-	;mov edx,limptam
-	;mov ecx,limpatela
-	;call printstr
+	mov edx,limptam
+	mov ecx,limpatela
+	call printstr
 	
 	mov edx,tam3 ;quantidade de caracteres, no caso ele imprime o tamanho armazenado em tamm
 	mov ecx,mens3 ;ponteiro da string
@@ -139,5 +139,4 @@ acerto:
 	mov ecx,mensacerto
 	call printstr
 	ret
-	
 	
