@@ -1,9 +1,14 @@
 ;PUC-ECEC-CMP1057-ARQ1-
-;09/04/19
-;Wellington Junio De Melo Fernandes e Ríverson da Costa Souza
+;12/02/19
+;Wellington Junio De Melo Fernandes
 ;
 ;Segundo Programa 3aula.asm
 
+segment .bss
+	
+	;dados nao inicializados
+	mens2 resb 100	
+	mens5 resb 100
 
 segment .data
 
@@ -37,7 +42,6 @@ _start:
 	mov edx,7 ; maximo armazenado
 	mov ecx,mens2 ; buffer destino
 	call readstr; Em eax retorna o nº de caracteres armazenados
-	call printstr
 	cmp eax,7 ;Validando a quantidade de caracteres
 	jne _start ;Se for < que 6 volta pro inicio
 	
@@ -48,7 +52,7 @@ _start:
 	jne _start
 		
 tentativasenha:
-
+	
 	;limpa a tela
 	mov edx,limptam
 	mov ecx,limpatela
@@ -67,18 +71,12 @@ tentativasenha:
 	jne tentativasenha
 	call acerto
 	
-segment .bss
-	
-	;dados nao inicializados
-	mens2 resb 100	
-	mens5 resb 100
-
-segment .text ;Foi necessario dizer ao montador que o fim é participante do segmento .text(de codigo) ee não do segmento .bss
-	
 fim:
 	
 	mov eax,1 ; serviço EXIT
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
+
+
 
 ;Procedure area
 printstr:
@@ -139,4 +137,3 @@ acerto:
 	mov ecx,mensacerto
 	call printstr
 	ret
-	
