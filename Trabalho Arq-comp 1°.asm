@@ -1,6 +1,6 @@
 ;PUC-ECEC-CMP1057-ARQ1-
-;12/02/19
-;Wellington Junio De Melo Fernandes
+;09/04/19
+;Wellington Junio De Melo Fernandes e Ríverson da Costa Souza
 ;
 ;Segundo Programa 3aula.asm
 
