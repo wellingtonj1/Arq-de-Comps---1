@@ -21,7 +21,7 @@ segment .data
 	mensacerto db"Vocẽ acertou !!!",10
 	tamacerto equ $- mensacerto 
 
-	menserro db 27,"[H",27,"[J",10,"Muitas tentativas erradas, Para o bem da sociedade fechamos o programa! *-* ",10,10
+	menserro db 27,"[H",27,"[J",10,"Muitas tentativas erradas, Para o bem da humanidade fechamos o programa! *-* ",10,10
 	tamerro equ $- menserro
 	
 segment .text
