@@ -1,6 +1,6 @@
 ;PUC-ECEC-CMP1057-ARQ1-
 ;12/02/19
-;Wellington Junio De Melo Fernandes E Riverson 
+;Wellington Junio De Melo Fernandes E Riverson da costa souza
 ;
 ; Trabalhocomparastr.asm
 segment .bss
