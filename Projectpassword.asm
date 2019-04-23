@@ -1,8 +1,8 @@
 ;PUC-ECEC-CMP1057-ARQ1-
-;12/02/19
-;Wellington Junio De Melo Fernandes E Riverson da costa souza
+;23/04/19
+;Wellington Junio De Melo Fernandes 
 ;
-; Trabalhocomparastr.asm
+; pjsenha.asm
 segment .bss
 	;dados nao inicializados
 	opcao resb 100	
