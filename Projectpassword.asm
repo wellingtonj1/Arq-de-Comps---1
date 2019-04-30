@@ -1,8 +1,8 @@
 ;PUC-ECEC-CMP1057-ARQ1-
-;23/04/19
+;30/04/19
 ;Wellington Junio De Melo Fernandes 
 ;
-; pjsenha.asm
+; filé.asm
 segment .bss
 	;dados nao inicializados
 	opcao resb 100	
@@ -11,19 +11,26 @@ segment .bss
 segment .data
 	menu db "**-----------------------------------------------------------------------------",10
 		  db "**		    		Choose a option	 ",10
-		  db "** ( 1 ) Acessar",10,"** ( 2 ) Cadastrar ",10,"** ( 3 ) Sair ",10,"** "
+		  db "** ( 1 ) access",10,"** ( 2 ) Register ",10,"** ( 3 ) Exit ",10,"** "
 	tamenu equ $-menu
 	
 	limpatela db 27,"[H",27,"[J"
 	limptam equ $-limpatela
 	
-	mens1 db "Digite o nome da pessoa"
+	arqname db "arq.sen",0
+	tamarqname equ $-arqname
 	
+	mens1 db "Digite o nome da pessoa"
+	tammens1 equ $-mens1
+	
+	descritor dd 0
 	
 segment .text
 global _start
 
 _start:
+	call criaarq
+	
 	mov edx,limptam ;limpa a tela
 	mov ecx,limpatela
 	call printstr
@@ -40,6 +47,8 @@ _start:
 	
 	call opera
 	
+	call fim
+	
 ;Procedure area
 opera:
 
@@ -49,7 +58,7 @@ opera:
 	cmp al,"2"
 	je cadastro
 	cmp al,"3"
-	je sair
+	je fim
 	
 	cmp al,"0"
 	je _start
@@ -70,19 +79,53 @@ readstr:
 	mov eax,3
 	int 80h
 	ret
+	
+;Other Procedure
+criaarq:
+	
+	mov ecx,0q777
+	mov ebx,arqname
+	mov eax,8
+	int 80h
+
+	ret
 
 ;Other Procedure
+fechaarq:
+	
+	mov ebx,[descritor]
+	mov eax,6
+
+;Other Procedure
+openarq:
+	
+	mov edx,0q777
+	mov ecx,2
+	mov ebx,arqname
+	mov eax,5
+	mov [descritor],eax
+	int 80h
+
+;Other Procedure / le o arquivo se a senha inserida for igual a qualquer uma do arquivo
 acesso:
 	
 	ret
 	
-;Other Procedure
+;Other Procedure /coloca no arquivo
 cadastro:
-
+	
+	call openarq
+	mov edx,tamenu
+	mov ecx,menu
+	mov ebx,[descritor]
+	mov eax,3
+	int 80h
+	
+	call fechaarq
 	ret
 	
 ;Other Procedure
-sair:
+fim:
 
 	mov eax,1 ; serviço EXIT
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
