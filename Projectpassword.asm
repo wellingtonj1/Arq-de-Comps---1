@@ -131,4 +131,34 @@ fim:
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
 
 	ret
+
+
+	
+;Other Procedure em fase de teste
+	 
+	 cmp eax,0
+	 jl errado
+	 mov [fd],eax
+	
+;encerrar
+
+	mov eax,1
+	int 80h
+	
+;erroab
+
+	mov edx,tam
+	mov ecx,erroab
+	mov ebx,1 
+	mov eax,4
+	int 80h
+	jmp fim
+	
+;abertura do arquivo
+
+	mov edx,777q
+	mov ecx,2
+	mov ebx,arqname
+	mov eax,5
+	int 80h
 	
