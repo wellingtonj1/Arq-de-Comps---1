@@ -1,89 +1,109 @@
 ;PUC-ECEC-CMP1057-ARQ1-
-;12/02/19
-;Wellington Junio De Melo Fernandes E Riverson da costa souza
+;30/04/19
+;Wellington Junio De Melo Fernandes 
 ;
-; Trabalhocomparastr.asm
+; filé.asm
 segment .bss
 	;dados nao inicializados
-	mens2 resb 100	
+	opcao resb 100	
 	mens5 resb 100
+	senha resb 100
 	
 segment .data
-	mens1 db"Digite uma senha de 6 caracteres intercalando maiuscula de minusculas: ",10
-	tam1 equ $-mens1
+	
+	menu db "**-----------------------------------------------------------------------------",10
+		  db "**		    		Choose a option	 ",10
+		  db "** ( 1 ) access",10,"** ( 2 ) Register ",10,"** ( 3 ) Exit ",10,"** "
+	tamenu equ $-menu
 	
 	limpatela db 27,"[H",27,"[J"
 	limptam equ $-limpatela
 	
-	mens3 db "Tenta advinhar a senha que foi digitada agora!",10
-	tam3 equ $-mens3 
+	arqname db "arq.sen",0
+	tamarqname equ $-arqname
 	
-	mensacerto db"Vocẽ acertou !!!",10
-	tamacerto equ $- mensacerto 
-
-	menserro db 27,"[H",27,"[J",10,"Muitas tentativas erradas, Para o bem da humanidade fechamos o programa! *-* ",10,10
-	tamerro equ $- menserro
+	mens1 db "Digite o nome da pessoa"
+	tammens1 equ $-mens1
+	
+	erroab db "Erro na abertura do arquivo !!!..."
+	tam equ $-erroab
+	
+	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
+	tamint equ $-intro1
+	
+	;descritor dd 0 ;variavel de dados
+	fd resd 0
 	
 segment .text
 global _start
 
 _start:
+
+	call openarq
+	cmp eax,0	
+	jl errorfile
+	mov [fd],eax
+	
 	mov edx,limptam ;limpa a tela
 	mov ecx,limpatela
-	call printstr
+	call printstr 
+	call impmenu
+	call fim
 	
-	mov edx,tam1 ;quantidade de caracteres, no caso ele imprime o tamanho armazenado em tamm
-	mov ecx,mens1 ;ponteiro da string
-	call printstr
-	
-	mov edx,7 ; maximo armazenado
-	mov ecx,mens2 ; buffer destino
-	call readstr; Em eax retorna o nº de caracteres armazenados
-	cmp eax,7 ;Validando a quantidade de caracteres
-	jne _start ;Se for < que 6 volta pro inicio
-	
-	mov ecx,eax ;limite
-	xor esi,esi
-	call valida
-	cmp esi,6
-	jne _start
-	mov edi,3
-	
-	mov edx,limptam ;limpa a tela para 2° usuario
+;Procedure area
+impmenu:
+
+	mov edx,limptam ;limpa a tela
 	mov ecx,limpatela
-	call printstr
+	call printstr 
 	
-tentativasenha:
-	dec edi
-	mov edx,tam3 ;quantidade de caracteres, no caso ele imprime o tamanho armazenado em tamm
-	mov ecx,mens3 ;ponteiro da string
+	mov edx,tamenu ; Imprime menu 
+	mov ecx,menu ;ponteiro da string
 	call printstr
 	
 	mov edx,100 ; maximo armazenado
-	mov ecx,mens5 ; buffer destino
-	call readstr;Em eax retorna o nº de caracteres armazenados
-	xor esi,esi
-	call comparaduas
-	cmp esi,7
-	jne wile
-	call acerto
+	mov ecx,opcao ; disponibiliza o teclado para inserir opção
+	call readstr; Em eax retorna o nº de caracteres armazenados
+	cmp eax,2
+	jne impmenu
 	
-fim:
-	mov eax,1 ; serviço EXIT
-	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
+	call opera
 
-;Procedure area
+	ret 
+opera:
+
+	mov al,[opcao]
+	cmp al,"1"
+	je acesso
+	cmp al,"2"
+	je administra
+	cmp al,"3"
+	je fim
+	
+	cmp al,"0"
+	je impmenu
+	cmp al,"4"
+	jae impmenu
+	ret
+	
+;Other Procedure
+administra:
+	mov edx,tamint
+	mov ecx,intro1
+	call printstr
+	
+	mov edx,7
+	mov ecx,senha
+	call readstr
+	cmp eax,7
+	jne impmenu
+	ret
+	
+;Other Procedure
 printstr:
 	mov ebx,0
 	mov eax,4
 	int 80h
-	ret
-	
-;Procedure area
-wile:
-	cmp edi,0
-	je erro
-	call tentativasenha
 	ret
 
 ;Other Procedure
@@ -94,51 +114,69 @@ readstr:
 	ret
 	
 ;Other Procedure
-valida:
-	mov al,[mens2+esi] ;car. origem 
-	cmp al,"A" ; A C E
-	jb sair
-	cmp al,"Z"
-	jg sair
-	inc esi 
-	mov al,[mens2+esi]
-	cmp ax,"a" ; b d f
-	jb sair
-	cmp ax,"z"
-	jg sair
-	inc esi
-	cmp esi,6
-	jne valida
+criaarq:
 	
-sair:
-	ret
-	
-;Other Procedure
-comparaduas:
-	mov al,[mens2+esi]
-	mov ah,[mens5+esi]
-	cmp al,ah
-	jne final
-	inc esi
-	cmp esi,7
-	jne comparaduas
-	
-final:
-
-	ret
-	
-;Other Procedure
-acerto:
-	mov edx,tamacerto
-	mov ecx,mensacerto
-	call printstr
+	mov ecx,0q777
+	mov ebx,arqname
+	mov eax,8
+	int 80h
 	ret
 
 ;Other Procedure
-erro:
-	mov edx,tamerro
-	mov ecx,menserro
-	call printstr
-	call fim
+fechaarq:
+		
+	mov ebx,[fd]
+	mov eax,6 ;serviço closefile
+	int 80h
+	ret
+;Other Procedure
+openarq:
+
+	mov edx,777q
+	mov ecx,2
+	mov ebx,arqname
+	mov eax,5
+	int 80h
+	ret
+	
+;Other Procedure / le o arquivo se a senha inserida for igual a qualquer uma do arquivo
+acesso:
+	
+	ret
+	
+;Other Procedure /coloca no arquivo
+cadastro:
+	
+	call _start
+	ret
+	
+;Other Procedure
+fim:
+
+	mov eax,1 ; serviço EXIT
+	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
+	ret
+
+
+	
+;Other Procedure em fase de teste
+	 
+	 ;cmp eax,0
+	 ;jl errado
+	 ;mov [fd],eax
+	
+;encerrar
+
+	;mov eax,1
+	;int 80h
+	
+errorfile:
+
+	mov edx,tam
+	mov ecx,erroab
+	mov ebx,1 
+	mov eax,4
+	int 80h
+	jmp fim
 	ret
 	
