@@ -25,7 +25,7 @@ segment .data
 	mens1 db "Digite o nome da pessoa"
 	tammens1 equ $-mens1
 	
-	erroab db "Erro na abertura do arquivo !!!..."
+	erroab db "Erro na abertura do arquivo !!!...Programa fechado",10,10
 	tam equ $-erroab
 	
 	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
@@ -48,7 +48,7 @@ _start:
 	mov ecx,limpatela
 	call printstr 
 	call impmenu
-	call fim
+
 	
 ;Procedure area
 impmenu:
@@ -68,8 +68,8 @@ impmenu:
 	jne impmenu
 	
 	call opera
-
 	ret 
+	
 opera:
 
 	mov al,[opcao]
@@ -87,7 +87,7 @@ opera:
 	ret
 	
 ;Other Procedure
-administra:
+administra: ;falta validar senha do administrador e inserir nova senha em arquivo
 	mov edx,tamint
 	mov ecx,intro1
 	call printstr
@@ -114,13 +114,13 @@ readstr:
 	ret
 	
 ;Other Procedure
-criaarq:
+;criaarq:
 	
-	mov ecx,0q777
-	mov ebx,arqname
-	mov eax,8
-	int 80h
-	ret
+	;mov ecx,0q777
+	;mov ebx,arqname
+	;mov eax,8
+	;int 80h
+	;ret
 
 ;Other Procedure
 fechaarq:
@@ -145,14 +145,14 @@ acesso:
 	ret
 	
 ;Other Procedure /coloca no arquivo
-cadastro:
+;cadastro:
 	
-	call _start
-	ret
+	;call _start
+	;ret
 	
 ;Other Procedure
 fim:
-
+	call fechaarq
 	mov eax,1 ; serviço EXIT
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
 	ret
@@ -164,11 +164,6 @@ fim:
 	 ;cmp eax,0
 	 ;jl errado
 	 ;mov [fd],eax
-	
-;encerrar
-
-	;mov eax,1
-	;int 80h
 	
 errorfile:
 
