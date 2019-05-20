@@ -25,7 +25,7 @@ segment .data
 	mens1 db "Digite o nome da pessoa"
 	tammens1 equ $-mens1
 	
-	erroab db "Erro na abertura do arquivo !!!...Programa fechado",10,10
+	erroab db "Erro na abertura do arquivo !!! |DEU RUIM|...Programa fechado",10,10
 	tam equ $-erroab
 	
 	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
@@ -139,7 +139,7 @@ openarq:
 	int 80h
 	ret
 	
-;Other Procedure / le o arquivo se a senha inserida for igual a qualquer uma do arquivo
+;Other Procedure / le o arquivo se a senha inserida for igual a primeira senha do arquivo
 acesso:
 	
 	ret
