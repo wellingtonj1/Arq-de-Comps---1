@@ -6,7 +6,6 @@
 segment .bss
 	;dados nao inicializados
 	opcao resb 100	
-	mens5 resb 100
 	senha resb 100
 	
 segment .data
@@ -92,12 +91,34 @@ administra: ;falta validar senha do administrador e inserir nova senha em arquiv
 	mov ecx,intro1
 	call printstr
 	
-	mov edx,7
+	mov edx,100
 	mov ecx,senha
 	call readstr
 	cmp eax,7
 	jne impmenu
+	call valida
+	cmp esi,6
+	jne _start
+	
 	ret
+	
+;Other Procedure
+valida:
+	
+	mov al,[senha+esi] ;car. origem 
+	cmp al,"A" ; A C E
+	jb opera
+	cmp al,"Z"
+	jg opera	
+	inc esi 
+	mov al,[senha+esi]
+	cmp ax,"a" ; b d f
+	jb opera
+	cmp ax,"z"
+	jg opera
+	inc esi
+	cmp esi,6
+	jne valida
 	
 ;Other Procedure
 printstr:
@@ -129,6 +150,7 @@ fechaarq:
 	mov eax,6 ;serviço closefile
 	int 80h
 	ret
+	
 ;Other Procedure
 openarq:
 
@@ -141,6 +163,7 @@ openarq:
 	
 ;Other Procedure / le o arquivo se a senha inserida for igual a primeira senha do arquivo
 acesso:
+	
 	
 	ret
 	
@@ -156,8 +179,6 @@ fim:
 	mov eax,1 ; serviço EXIT
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
 	ret
-
-
 	
 ;Other Procedure em fase de teste
 	 
@@ -174,4 +195,3 @@ errorfile:
 	int 80h
 	jmp fim
 	ret
-	
