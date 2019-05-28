@@ -1,12 +1,19 @@
+
 ;PUC-ECEC-CMP1057-ARQ1-
 ;30/04/19
 ;Wellington Junio De Melo Fernandes 
 ;
 ; filé.asm
+%define BUF_SIZE 256
+
 segment .bss
 	;dados nao inicializados
 	opcao resb 100	
 	senha resb 100
+	poearq resb 100
+	fd_in resd 1
+	fd_out resd 1
+	in_buf resb BUF_SIZE 
 	
 segment .data
 	
@@ -18,8 +25,8 @@ segment .data
 	limpatela db 27,"[H",27,"[J"
 	limptam equ $-limpatela
 	
-	arqname db "arq.sen",0
-	tamarqname equ $-arqname
+	in_file_name db "arq.sen",0
+	tamarqname equ $-in_file_name
 	
 	mens1 db "Digite o nome da pessoa"
 	tammens1 equ $-mens1
@@ -31,7 +38,7 @@ segment .data
 	tamint equ $-intro1
 	
 	;descritor dd 0 ;variavel de dados
-	fd resd 0
+	
 	
 segment .text
 global _start
@@ -39,9 +46,10 @@ global _start
 _start:
 
 	call openarq
+	mov [fd_in],eax
 	cmp eax,0	
 	jl errorfile
-	mov [fd],eax
+	
 	
 	mov edx,limptam ;limpa a tela
 	mov ecx,limpatela
@@ -86,7 +94,7 @@ opera:
 	ret
 	
 ;Other Procedure
-administra: ;falta validar senha do administrador e inserir nova senha em arquivo
+administra: ;falta inserir nova senha em arquivo
 	mov edx,tamint
 	mov ecx,intro1
 	call printstr
@@ -96,9 +104,17 @@ administra: ;falta validar senha do administrador e inserir nova senha em arquiv
 	call readstr
 	cmp eax,7
 	jne impmenu
+	xor esi,esi
 	call valida
 	cmp esi,6
 	jne _start
+	xor esi,esi
+	call compara
+	cmp esi,6
+	jne fim
+	mov edx,100
+	mov ecx,poearq
+	call escrevearq
 	
 	ret
 	
@@ -107,18 +123,19 @@ valida:
 	
 	mov al,[senha+esi] ;car. origem 
 	cmp al,"A" ; A C E
-	jb opera
+	jb fim
 	cmp al,"Z"
-	jg opera	
+	jg fim	
 	inc esi 
-	mov al,[senha+esi]
+	mov ax,[senha+esi]
 	cmp ax,"a" ; b d f
-	jb opera
+	jb fim
 	cmp ax,"z"
-	jg opera
+	jg fim
 	inc esi
 	cmp esi,6
 	jne valida
+	ret
 	
 ;Other Procedure
 printstr:
@@ -146,7 +163,7 @@ readstr:
 ;Other Procedure
 fechaarq:
 		
-	mov ebx,[fd]
+	mov ebx,[fd_in]
 	mov eax,6 ;serviço closefile
 	int 80h
 	ret
@@ -154,9 +171,9 @@ fechaarq:
 ;Other Procedure
 openarq:
 
-	mov edx,777q
+	mov edx,0700
 	mov ecx,2
-	mov ebx,arqname
+	mov ebx,in_file_name
 	mov eax,5
 	int 80h
 	ret
@@ -166,12 +183,6 @@ acesso:
 	
 	
 	ret
-	
-;Other Procedure /coloca no arquivo
-;cadastro:
-	
-	;call _start
-	;ret
 	
 ;Other Procedure
 fim:
@@ -186,6 +197,7 @@ fim:
 	 ;jl errado
 	 ;mov [fd],eax
 	
+;Other Procedure
 errorfile:
 
 	mov edx,tam
@@ -194,4 +206,50 @@ errorfile:
 	mov eax,4
 	int 80h
 	jmp fim
+	ret
+
+;Other Procedure
+repeat_read:
+
+	;read input file
+	mov edx,BUF_SIZE
+	mov ecx,in_buf
+	mov ebx,[fd_in]
+	mov eax,3
+	int 80h
+
+	;write to output file
+	mov ecx,in_buf
+	mov ebx,[fd_out]
+	mov eax,4
+	mov edx,eax
+	int 80h
+	cmp edx,BUF_SIZE
+	jl copy_done
+	jmp repeat_read
+	
+	ret
+
+;Other Procedure
+copy_done:
+	
+	mov ebx,[fd_out]
+	mov eax,6
+	ret
+	
+compara:
+	
+	mov al,[senha+esi]
+	mov bl,[fd_in+esi]
+	cmp al,bl
+	jne fim
+	cmp esi,6
+	jne compara
+	ret
+
+escrevearq:
+
+	mov eax,4
+	mov edx,eax
+	int 80h
 	ret
