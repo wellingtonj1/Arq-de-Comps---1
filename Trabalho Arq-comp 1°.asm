@@ -11,6 +11,7 @@ segment .bss
 	opcao resb 100	
 	senha resb 100
 	poearq resb 100
+	pegaarq resb 10
 	fd_in resd 1
 	fd_out resd 1
 	in_buf resb BUF_SIZE 
@@ -110,6 +111,7 @@ administra: ;falta inserir nova senha em arquivo
 	call valida
 	cmp esi,6
 	jne _start
+	call readarq
 	xor esi,esi
 	call compara
 	cmp esi,6
@@ -242,7 +244,7 @@ copy_done:
 compara:
 	
 	mov al,[senha+esi]
-	mov ah,[fd_in+esi]
+	mov ah,[pegaarq+esi]
 	cmp al,ah
 	jne errototal
 	cmp esi,7
@@ -269,4 +271,14 @@ poeinicio:
 	mov ecx,0
 	mov ebx,[fd_in]
 	mov eax,19
+	ret
+
+readarq:
+	
+	mov edx,7
+	mov ecx,pegaarq
+	mov ebx,[fd_in]
+	mov eax,3
+	int 80h
+	
 	ret
