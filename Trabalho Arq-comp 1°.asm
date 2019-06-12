@@ -9,8 +9,8 @@
 segment .bss
 	;dados nao inicializados
 	opcao resb 100	
-	senha resb 100
-	poearq resb 100
+	senha resb 7
+	poearq resb 7
 	pegaarq resb 10
 	fd_in resd 1
 	fd_out resd 1
@@ -38,8 +38,11 @@ segment .data
 	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
 	tamint equ $-intro1
 	
-	erro db "Erro aqui nessa posição",10,10
+	erro db "Erro aqui dentro",10,10
 	tamerro equ $-erro
+
+	mendigita db "Digite agora a nova senha",10
+	tamdigita equ $-mendigita
 	;descritor dd 0 ;variavel de dados
 	
 	
@@ -53,7 +56,6 @@ _start:
 	cmp eax,0	
 	jl errorfile
 	
-	call poeinicio
 	mov edx,limptam ;limpa a tela
 	mov ecx,limpatela
 	call printstr 
@@ -81,7 +83,7 @@ impmenu:
 	ret 
 	
 opera:
-
+	
 	mov al,[opcao]
 	cmp al,"1"
 	je acesso
@@ -97,16 +99,17 @@ opera:
 	ret
 	
 ;Other Procedure
-administra: ;falta inserir nova senha em arquivo
+administra:
+	
 	mov edx,tamint
 	mov ecx,intro1
 	call printstr
 	
-	mov edx,100
+	mov edx,7
 	mov ecx,senha
 	call readstr
 	cmp eax,7
-	jne impmenu
+	jne _start
 	xor esi,esi
 	call valida
 	cmp esi,6
@@ -114,10 +117,17 @@ administra: ;falta inserir nova senha em arquivo
 	call readarq
 	xor esi,esi
 	call compara
-	cmp esi,6
-	jne fim
-	mov edx,100
+	cmp esi,7
+	jne _start
+	call msg
+	mov edx,7
 	mov ecx,poearq
+	call readstr
+	xor esi,esi
+	call valida
+	cmp esi,6
+	jne _start
+	call gofinalarq
 	call escrevearq
 	
 	ret
@@ -127,15 +137,15 @@ valida:
 		
 	mov al,[senha+esi] ;car. origem 
 	cmp al,"A" ; A C E
-	jb impmenu
+	jb _start
 	cmp al,"Z"
-	jg impmenu	
+	jg _start	
 	inc esi 
 	mov al,[senha+esi]
 	cmp ax,"a" ; b d f
-	jb impmenu
+	jb _start
 	cmp ax,"z"
-	jg impmenu
+	jg _start
 	inc esi
 	cmp esi,6
 	jne valida
@@ -182,7 +192,7 @@ openarq:
 	int 80h
 	ret
 	
-;Other Procedure / le o arquivo se a senha inserida for igual a primeira senha do arquivo
+;Other Procedure / le o arquivo se a senha inserida existir no arquivo imp acesso liberado
 acesso:
 	
 	
@@ -246,16 +256,11 @@ compara:
 	mov al,[senha+esi]
 	mov ah,[pegaarq+esi]
 	cmp al,ah
-	jne errototal
+	jne _start
+	inc esi
 	cmp esi,7
 	jne compara
-	ret
-
-escrevearq:
-
-	mov eax,4
-	mov edx,eax
-	int 80h
+	
 	ret
 
 errototal:
@@ -274,11 +279,38 @@ poeinicio:
 	ret
 
 readarq:
-	
+
+	call poeinicio
 	mov edx,7
 	mov ecx,pegaarq
 	mov ebx,[fd_in]
 	mov eax,3
 	int 80h
 	
+	ret
+
+escrevearq:
+
+	mov edx,7
+	mov ecx,poearq
+	mov ebx,[fd_in]
+	mov eax,4
+	int 80h
+	
+	ret
+
+gofinalarq:
+	
+	mov edx,2
+	mov ecx,0
+	mov ebx,[fd_in]
+	mov eax,19
+	
+	ret
+
+msg:
+
+	mov edx,tamdigita
+	mov ecx,mendigita
+	call printstr
 	ret
