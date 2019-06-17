@@ -15,6 +15,7 @@ segment .bss
 	fd_in resd 1
 	fd_out resd 1
 	in_buf resb BUF_SIZE 
+	auxerro resb 100
 	
 segment .data
 	
@@ -38,7 +39,7 @@ segment .data
 	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
 	tamint equ $-intro1
 	
-	erro db "Erro aqui dentro",10,10
+	erro db "Senha invalida, pressione enter para continuar !",10,10
 	tamerro equ $-erro
 
 	mendigita db "Digite agora a nova senha",10
@@ -123,8 +124,8 @@ administra:
 	mov edx,7
 	mov ecx,poearq
 	call readstr
-	xor esi,esi
-	call valida
+	mov esi,0
+	call revalida
 	cmp esi,6
 	jne _start
 	call gofinalarq
@@ -132,6 +133,26 @@ administra:
 	
 	ret
 	
+
+;Other Procedure
+revalida:
+		
+	mov al,[poearq+esi] ;car. origem 
+	cmp al,"A" ; A C E
+	jb errototal
+	cmp al,"Z"
+	jg errototal	
+	inc esi 
+	mov al,[poearq+esi]
+	cmp ax,"a" ; b d f
+	jb errototal
+	cmp ax,"z"
+	jg errototal
+	inc esi
+	cmp esi,6
+	jne revalida
+	ret
+
 ;Other Procedure
 valida:
 		
@@ -268,6 +289,12 @@ errototal:
 	mov edx,tamerro
 	mov ecx,erro
 	call printstr
+	mov edx,100
+	mov ecx,auxerro
+	call readstr
+	mov edi,0
+	cmp edi,0
+	je _start
 	ret
 
 poeinicio:
