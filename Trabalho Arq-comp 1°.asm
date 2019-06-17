@@ -16,6 +16,7 @@ segment .bss
 	fd_out resd 1
 	in_buf resb BUF_SIZE 
 	auxerro resb 100
+	auxsenha resb 7
 	
 segment .data
 	
@@ -39,12 +40,15 @@ segment .data
 	intro1 db "Digite a senha de super usuario para cadastrar uma pessoa ",10
 	tamint equ $-intro1
 	
-	erro db "Senha invalida, pressione enter para continuar !",10,10
+	erro db "pressione enter para continuar !",10,10
 	tamerro equ $-erro
 
 	mendigita db "Digite agora a nova senha",10
 	tamdigita equ $-mendigita
 	;descritor dd 0 ;variavel de dados
+
+	mensucess db "Sucesso, o usuario é cadastrado no sistema !",10,10
+	tamsucess equ $-mensucess
 	
 	
 segment .text
@@ -101,7 +105,7 @@ opera:
 	
 ;Other Procedure
 administra:
-	
+
 	mov edx,tamint
 	mov ecx,intro1
 	call printstr
@@ -115,6 +119,7 @@ administra:
 	call valida
 	cmp esi,6
 	jne _start
+	call poeinicio
 	call readarq
 	xor esi,esi
 	call compara
@@ -130,6 +135,7 @@ administra:
 	jne _start
 	call gofinalarq
 	call escrevearq
+	call fechaarq
 	
 	ret
 	
@@ -187,15 +193,6 @@ readstr:
 	ret
 	
 ;Other Procedure
-;criaarq:
-	
-	;mov ecx,0q777
-	;mov ebx,arqname
-	;mov eax,8
-	;int 80h
-	;ret
-
-;Other Procedure
 fechaarq:
 		
 	mov ebx,[fd_in]
@@ -213,12 +210,7 @@ openarq:
 	int 80h
 	ret
 	
-;Other Procedure / le o arquivo se a senha inserida existir no arquivo imp acesso liberado
-acesso:
-	
-	
-	ret
-	
+
 ;Other Procedure
 fim:
 	call fechaarq
@@ -226,13 +218,7 @@ fim:
 	int 80h ;encerra (mesmo kernel para executar.. esse é o padrão)
 	ret
 	
-;Other Procedure em fase de teste
-	 
-	 ;cmp eax,0
-	 ;jl errado
-	 ;mov [fd],eax
-	
-;Other Procedure
+;Other Procedure 
 errorfile:
 
 	mov edx,tam
@@ -243,35 +229,40 @@ errorfile:
 	jmp fim
 	ret
 
-;Other Procedure
-repeat_read:
-
-	;read input file
-	mov edx,BUF_SIZE
-	mov ecx,in_buf
-	mov ebx,[fd_in]
-	mov eax,3
-	int 80h
-
-	;write to output file
-	mov ecx,in_buf
-	mov ebx,[fd_out]
-	mov eax,4
-	mov edx,eax
-	int 80h
-	cmp edx,BUF_SIZE
-	jl copy_done
-	jmp repeat_read
+acesso:
 	
-	ret
+	mov edx,7
+	mov ecx,auxsenha
+	call readstr
+	call poeinicio
+	xor esi,esi
+	call comparaaux
 
-;Other Procedure
-copy_done:
-	
-	mov ebx,[fd_out]
-	mov eax,6
 	ret
 	
+for:
+	
+	mov esi,0
+	call comparaaux
+	ret
+
+comparaaux:
+	
+	call readarq
+	cmp eax,0
+	jb _start
+	mov al,[auxsenha+esi]
+	mov ah,[pegaarq+esi]
+	cmp al,ah
+	jne _start
+	inc esi
+	cmp esi,7
+	jne comparaaux
+	cmp esi,7
+	je for
+
+	ret
+
 compara:
 	
 	mov al,[senha+esi]
@@ -283,6 +274,12 @@ compara:
 	jne compara
 	
 	ret
+
+sucess:
+
+	mov edx,tamsucess
+	mov ecx,mensucess
+	call printstr
 
 errototal:
 	
@@ -307,7 +304,6 @@ poeinicio:
 
 readarq:
 
-	call poeinicio
 	mov edx,7
 	mov ecx,pegaarq
 	mov ebx,[fd_in]
