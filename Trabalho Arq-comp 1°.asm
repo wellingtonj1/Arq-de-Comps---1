@@ -16,7 +16,7 @@ segment .bss
 	fd_out resd 1
 	in_buf resb BUF_SIZE 
 	auxerro resb 100
-	auxsenha resb 7
+	auxsenha resb 100
 	
 segment .data
 	
@@ -47,8 +47,11 @@ segment .data
 	tamdigita equ $-mendigita
 	;descritor dd 0 ;variavel de dados
 
-	mensucess db "Sucesso, o usuario é cadastrado no sistema !",10,10
+	mensucess db "Sucesso, o usuario é cadastrado no sistema ! Tecle enter para continuar",10,10
 	tamsucess equ $-mensucess
+
+	inst db "Insira a senha para verificar se a mesma existe.",10,10
+	taminst equ $-inst
 	
 	
 segment .text
@@ -231,7 +234,10 @@ errorfile:
 
 acesso:
 	
-	mov edx,7
+	mov edx, taminst
+	mov ecx, inst
+	call printstr
+	mov edx,100
 	mov ecx,auxsenha
 	call readstr
 	call poeinicio
@@ -243,14 +249,15 @@ acesso:
 for:
 	
 	mov esi,0
+	call deixala
 	call comparaaux
 	ret
 
 comparaaux:
-	
+
 	call readarq
 	cmp eax,0
-	jb _start
+	jbe sucess
 	mov al,[auxsenha+esi]
 	mov ah,[pegaarq+esi]
 	cmp al,ah
@@ -258,8 +265,7 @@ comparaaux:
 	inc esi
 	cmp esi,7
 	jne comparaaux
-	cmp esi,7
-	je for
+	jmp for
 
 	ret
 
@@ -280,6 +286,14 @@ sucess:
 	mov edx,tamsucess
 	mov ecx,mensucess
 	call printstr
+	mov edx,100
+	mov ecx,auxerro
+	call readstr
+	mov edi,0
+	cmp edi,0
+	je _start
+
+	ret
 
 errototal:
 	
@@ -292,6 +306,16 @@ errototal:
 	mov edi,0
 	cmp edi,0
 	je _start
+
+	ret
+
+deixala:
+
+	mov edx,1
+	mov ecx,0
+	mov ebx,[fd_in]
+	mov eax,19
+	int 80h
 	ret
 
 poeinicio:
@@ -300,6 +324,7 @@ poeinicio:
 	mov ecx,0
 	mov ebx,[fd_in]
 	mov eax,19
+	int 80h
 	ret
 
 readarq:
@@ -328,6 +353,7 @@ gofinalarq:
 	mov ecx,0
 	mov ebx,[fd_in]
 	mov eax,19
+	int 80h
 	
 	ret
 
