@@ -160,6 +160,7 @@ revalida:
 	inc esi
 	cmp esi,6
 	jne revalida
+	
 	ret
 
 ;Other Procedure
@@ -179,6 +180,7 @@ valida:
 	inc esi
 	cmp esi,6
 	jne valida
+
 	ret
 	
 ;Other Procedure
@@ -316,6 +318,7 @@ deixala:
 	mov ebx,[fd_in]
 	mov eax,19
 	int 80h
+
 	ret
 
 poeinicio:
@@ -325,6 +328,7 @@ poeinicio:
 	mov ebx,[fd_in]
 	mov eax,19
 	int 80h
+
 	ret
 
 readarq:
@@ -362,4 +366,5 @@ msg:
 	mov edx,tamdigita
 	mov ecx,mendigita
 	call printstr
+
 	ret
